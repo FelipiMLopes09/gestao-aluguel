@@ -1,0 +1,749 @@
+
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
+<title>Gestão Aluguel</title>
+
+<style>
+:root{
+  --bg:#0B0B0D;
+  --card:#17171A;
+  --text:#FFFFFF;
+  --sub:#A1A1AA;
+  --muted:#2A2A2F;
+  --accent:#FFFFFF;
+  --shadow: 0 14px 40px rgba(0,0,0,.35);
+  --radius:22px;
+}
+
+*{ box-sizing:border-box; -webkit-tap-highlight-color: transparent; }
+html,body{ height:100%; }
+body{
+  margin:0;
+  font-family:-apple-system, BlinkMacSystemFont, "SF Pro Display","SF Pro Text","Segoe UI", Roboto, sans-serif;
+  background: radial-gradient(1200px 800px at 20% -10%, rgba(255,255,255,.08), transparent 55%),
+              radial-gradient(900px 700px at 90% 10%, rgba(255,255,255,.05), transparent 55%),
+              var(--bg);
+  color:var(--text);
+  padding-bottom: calc(94px + env(safe-area-inset-bottom));
+}
+
+.header{
+  padding: 22px 20px 10px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+}
+.brand{
+  display:flex; flex-direction:column; gap:2px;
+}
+.brand .title{
+  font-size:22px; font-weight:750; letter-spacing:.2px;
+}
+.brand .subtitle{
+  color:var(--sub); font-size:13px;
+}
+.pill{
+  display:flex; align-items:center; gap:8px;
+  padding:10px 12px;
+  border-radius:999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.07);
+  color: var(--sub);
+  font-size:12px;
+}
+
+.container{ padding: 10px 20px 0; }
+
+.grid{
+  display:grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 12px;
+  margin-top: 10px;
+}
+
+.card{
+  background: linear-gradient(180deg, rgba(255,255,255,.06), rgba(255,255,255,.03));
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: var(--radius);
+  padding: 16px;
+  box-shadow: var(--shadow);
+  backdrop-filter: blur(10px);
+}
+
+.card .label{ color:var(--sub); font-size:12px; }
+.card .value{ font-size:22px; font-weight:800; margin-top:8px; letter-spacing:.2px; }
+.card .hint{ color:var(--sub); font-size:12px; margin-top:8px; }
+
+.card-wide{ grid-column: 1 / -1; padding: 16px; }
+
+.row{
+  display:flex; align-items:center; justify-content:space-between; gap:12px;
+}
+
+.badge{
+  padding:6px 10px;
+  border-radius:999px;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.08);
+  color: var(--sub);
+  font-size:12px;
+  white-space:nowrap;
+}
+
+.section-title{
+  margin: 18px 0 10px;
+  font-size:14px;
+  font-weight:700;
+  letter-spacing:.2px;
+  color: rgba(255,255,255,.92);
+}
+
+.list{ display:flex; flex-direction:column; gap:10px; }
+
+.item{
+  background: rgba(255,255,255,.04);
+  border: 1px solid rgba(255,255,255,.08);
+  border-radius: 18px;
+  padding: 14px 14px;
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap:12px;
+  animation: pop .18s ease-out;
+}
+.item .left{ display:flex; flex-direction:column; gap:4px; min-width:0; }
+.item .name{ font-weight:750; font-size:15px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.item .meta{ color:var(--sub); font-size:12px; overflow:hidden; text-overflow:ellipsis; white-space:nowrap; }
+.item .price{ font-weight:850; font-size:15px; white-space:nowrap; }
+
+.item-actions{
+  display:flex;
+  align-items:center;
+  gap:8px;
+}
+
+.iconbtn{
+  width:36px; height:36px;
+  border-radius:14px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  color: rgba(255,255,255,.92);
+  font-size:16px;
+  user-select:none;
+}
+.iconbtn:active{ transform: translateY(1px) scale(.99); filter: brightness(.96); }
+.iconbtn.danger{
+  color:#fff;
+  background: rgba(255,59,48,.18);
+  border-color: rgba(255,59,48,.30);
+}
+
+@keyframes pop { from { transform: translateY(3px); opacity:.6 } to { transform: translateY(0); opacity:1 } }
+
+/* FAB */
+.fab{
+  position:fixed;
+  right: 18px;
+  bottom: calc(92px + env(safe-area-inset-bottom));
+  width: 58px;
+  height: 58px;
+  border-radius: 18px;
+  background: var(--accent);
+  color:#0B0B0D;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  font-size:28px;
+  font-weight:800;
+  box-shadow: 0 18px 55px rgba(0,0,0,.55);
+  transition: transform .12s ease, filter .12s ease;
+}
+.fab:active{ transform: translateY(2px) scale(.98); filter: brightness(.95); }
+
+/* Bottom nav */
+.nav{
+  position:fixed;
+  left: 10px;
+  right: 10px;
+  bottom: calc(10px + env(safe-area-inset-bottom));
+  background: rgba(20,20,24,.78);
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 22px;
+  padding: 10px 10px;
+  display:flex;
+  justify-content:space-around;
+  gap:10px;
+  backdrop-filter: blur(18px);
+  box-shadow: 0 14px 55px rgba(0,0,0,.55);
+}
+
+.tab{
+  flex:1;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:8px;
+  padding: 10px 10px;
+  border-radius: 16px;
+  color: var(--sub);
+  font-size: 13px;
+  font-weight: 650;
+  transition: background .18s ease, color .18s ease;
+}
+.tab.active{
+  color: #0B0B0D;
+  background: rgba(255,255,255,.92);
+}
+
+/* Pages */
+.page{ display:none; }
+.page.active{ display:block; animation: fadeIn .22s ease-out; }
+@keyframes fadeIn { from { opacity:.55; transform: translateY(4px) } to { opacity:1; transform: translateY(0) } }
+
+/* Modal */
+.modal{
+  position:fixed;
+  inset:0;
+  display:none;
+  align-items:flex-end;
+  justify-content:center;
+  background: rgba(0,0,0,.62);
+  backdrop-filter: blur(8px);
+  padding: 14px 14px calc(14px + env(safe-area-inset-bottom));
+}
+.modal.show{ display:flex; animation: fadeIn .18s ease-out; }
+
+.sheet{
+  width:100%;
+  max-width: 520px;
+  background: linear-gradient(180deg, rgba(255,255,255,.08), rgba(255,255,255,.04));
+  border: 1px solid rgba(255,255,255,.10);
+  border-radius: 26px;
+  box-shadow: 0 24px 80px rgba(0,0,0,.70);
+  padding: 14px;
+  animation: slideUp .22s ease-out;
+}
+@keyframes slideUp { from { transform: translateY(18px); opacity:.5 } to { transform: translateY(0); opacity:1 } }
+
+.sheet-header{
+  display:flex; align-items:center; justify-content:space-between;
+  padding: 6px 6px 10px;
+}
+.sheet-title{ font-weight:800; letter-spacing:.2px; }
+.close{
+  width: 36px; height: 36px; border-radius: 14px;
+  display:flex; align-items:center; justify-content:center;
+  background: rgba(255,255,255,.06);
+  border: 1px solid rgba(255,255,255,.10);
+  color: var(--sub);
+  font-weight:800;
+}
+.close:active{ transform: scale(.98); }
+
+.form{ padding: 0 6px 8px; display:flex; flex-direction:column; gap:10px; }
+
+.field label{ display:block; font-size:12px; color: var(--sub); margin: 0 0 6px 2px; }
+.field input{
+  width:100%;
+  padding: 14px 14px;
+  border-radius: 16px;
+  border: 1px solid rgba(255,255,255,.10);
+  background: rgba(255,255,255,.06);
+  color: var(--text);
+  font-size:16px;
+  outline:none;
+}
+.field input::placeholder{ color: rgba(255,255,255,.35); }
+.field input:focus{ border-color: rgba(255,255,255,.20); }
+
+.btn{
+  width:100%;
+  padding: 14px 16px;
+  border-radius: 16px;
+  border: none;
+  background: rgba(255,255,255,.95);
+  color:#0B0B0D;
+  font-weight:850;
+  font-size:16px;
+  letter-spacing:.2px;
+  margin-top: 4px;
+  transition: transform .12s ease, filter .12s ease;
+}
+.btn:active{ transform: translateY(2px) scale(.99); filter: brightness(.96); }
+
+/* Toast */
+.toast{
+  position: fixed;
+  left: 50%;
+  transform: translateX(-50%);
+  bottom: calc(102px + env(safe-area-inset-bottom));
+  background: rgba(255,255,255,.92);
+  color:#0B0B0D;
+  padding: 10px 14px;
+  border-radius: 999px;
+  font-weight: 750;
+  font-size: 13px;
+  box-shadow: 0 16px 55px rgba(0,0,0,.55);
+  opacity:0;
+  pointer-events:none;
+  transition: opacity .18s ease, transform .18s ease;
+}
+.toast.show{ opacity:1; transform: translateX(-50%) translateY(-6px); }
+
+/* Canvas */
+.spark-wrap{ margin-top: 10px; }
+canvas{ width:100%; height:56px; display:block; }
+
+/* Numeric alignment */
+.kbd{ font-variant-numeric: tabular-nums; font-feature-settings:"tnum" 1; }
+</style>
+</head>
+
+<body>
+  <div class="header">
+    <div class="brand">
+      <div class="title">Gestão Aluguel</div>
+      <div class="subtitle">Painel premium • offline</div>
+    </div>
+    <div class="pill" id="pillMonth">—</div>
+  </div>
+
+  <div class="container">
+
+    <!-- PAGE: DASHBOARD -->
+    <div class="page active" id="pageDashboard">
+      <div class="grid">
+        <div class="card">
+          <div class="label">Receita total</div>
+          <div class="value kbd" id="total">R$ 0</div>
+          <div class="hint">Soma de todas as reservas</div>
+        </div>
+
+        <div class="card">
+          <div class="label">Receita do mês</div>
+          <div class="value kbd" id="mes">R$ 0</div>
+          <div class="hint" id="mesHint">Mês atual</div>
+        </div>
+
+        <div class="card">
+          <div class="label">Reservas no mês</div>
+          <div class="value kbd" id="countMes">0</div>
+          <div class="hint">Entradas no mês atual</div>
+        </div>
+
+        <div class="card">
+          <div class="label">Maior reserva</div>
+          <div class="value kbd" id="max">R$ 0</div>
+          <div class="hint">Valor máximo cadastrado</div>
+        </div>
+
+        <div class="card card-wide">
+          <div class="row">
+            <div>
+              <div class="label">Próximo check-in</div>
+              <div class="value" style="font-size:18px;margin-top:6px" id="next">Nenhum</div>
+              <div class="hint" id="nextHint">—</div>
+            </div>
+            <div class="badge" id="badgeNext">Sem agenda</div>
+          </div>
+          <div class="spark-wrap">
+            <canvas id="spark" width="600" height="120"></canvas>
+            <div class="hint">Evolução (últimos 6 meses)</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="section-title">Últimas reservas</div>
+      <div class="list" id="lastList"></div>
+    </div>
+
+    <!-- PAGE: RESERVAS -->
+    <div class="page" id="pageReservas">
+      <div class="section-title">Todas as reservas</div>
+      <div class="list" id="allList"></div>
+      <div class="card" style="margin-top:14px">
+        <div class="row">
+          <div>
+            <div class="label">Backup rápido</div>
+            <div class="hint">Exporta seus dados para copiar/guardar</div>
+          </div>
+          <button class="btn" style="width:auto;padding:10px 12px;border-radius:14px;font-size:13px" onclick="exportar()">Exportar</button>
+        </div>
+        <div class="hint" id="exportOut" style="margin-top:10px;word-break:break-word"></div>
+      </div>
+    </div>
+
+  </div>
+
+  <div class="fab" onclick="abrirModalNovo()">+</div>
+
+  <div class="nav">
+    <div class="tab active" id="tabDash" onclick="ir('dashboard')">🏠 Dashboard</div>
+    <div class="tab" id="tabRes" onclick="ir('reservas')">📋 Reservas</div>
+  </div>
+
+  <div class="modal" id="modal" onclick="fecharModal(event)">
+    <div class="sheet" onclick="event.stopPropagation()">
+      <div class="sheet-header">
+        <div class="sheet-title" id="sheetTitle">Nova reserva</div>
+        <div class="close" onclick="fecharModal()">✕</div>
+      </div>
+      <div class="form">
+        <div class="field">
+          <label>Data de entrada</label>
+          <input type="date" id="entrada">
+        </div>
+        <div class="field">
+          <label>Data de saída</label>
+          <input type="date" id="saida">
+        </div>
+        <div class="field">
+          <label>Hóspede</label>
+          <input type="text" id="hospede" placeholder="Nome do hóspede">
+        </div>
+        <div class="field">
+          <label>Plataforma</label>
+          <input type="text" id="plataforma" placeholder="Airbnb, Booking...">
+        </div>
+        <div class="field">
+          <label>Valor</label>
+          <input type="number" id="valor" placeholder="Ex: 1288" inputmode="decimal">
+        </div>
+        <button class="btn" onclick="salvar()">Salvar</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="toast" id="toast">Salvo ✅</div>
+
+<script>
+let reservas = JSON.parse(localStorage.getItem("reservas")) || [];
+let editingId = null; // null = novo, senão = edição
+
+const fmtBRL = (n)=> "R$ " + (Number(n)||0).toLocaleString("pt-BR");
+const pad2 = (x)=> String(x).padStart(2,"0");
+const monthName = (d)=> d.toLocaleDateString("pt-BR",{month:"long", year:"numeric"});
+const uid = ()=> "r_" + Date.now().toString(36) + "_" + Math.random().toString(36).slice(2,8);
+
+function migrateIds(){
+  let changed = false;
+  reservas = reservas.map(r=>{
+    if(!r.id){ changed=true; return { id: uid(), ...r }; }
+    return r;
+  });
+  if(changed) localStorage.setItem("reservas", JSON.stringify(reservas));
+}
+
+function ir(p){
+  const dash = document.getElementById("pageDashboard");
+  const res  = document.getElementById("pageReservas");
+  const tabD = document.getElementById("tabDash");
+  const tabR = document.getElementById("tabRes");
+  if(p==="dashboard"){
+    dash.classList.add("active"); res.classList.remove("active");
+    tabD.classList.add("active"); tabR.classList.remove("active");
+  } else {
+    res.classList.add("active"); dash.classList.remove("active");
+    tabR.classList.add("active"); tabD.classList.remove("active");
+  }
+}
+
+function abrirModalNovo(){
+  editingId = null;
+  document.getElementById("sheetTitle").textContent = "Nova reserva";
+  document.getElementById("modal").classList.add("show");
+  setTimeout(()=>document.getElementById("entrada").focus(), 50);
+}
+
+function abrirModalEditar(id){
+  const r = reservas.find(x=>x.id===id);
+  if(!r) return;
+  editingId = id;
+  document.getElementById("sheetTitle").textContent = "Editar reserva";
+  document.getElementById("entrada").value = r.entrada || "";
+  document.getElementById("saida").value = r.saida || "";
+  document.getElementById("hospede").value = r.hospede || "";
+  document.getElementById("plataforma").value = r.plataforma || "";
+  document.getElementById("valor").value = r.valor || "";
+  document.getElementById("modal").classList.add("show");
+  setTimeout(()=>document.getElementById("entrada").focus(), 50);
+}
+
+function limparForm(){
+  document.getElementById("entrada").value="";
+  document.getElementById("saida").value="";
+  document.getElementById("hospede").value="";
+  document.getElementById("plataforma").value="";
+  document.getElementById("valor").value="";
+}
+
+function fecharModal(e){
+  document.getElementById("modal").classList.remove("show");
+  editingId = null;
+  limparForm();
+}
+
+function toast(msg="Salvo ✅"){
+  const t = document.getElementById("toast");
+  t.textContent = msg;
+  t.classList.add("show");
+  setTimeout(()=>t.classList.remove("show"), 1400);
+}
+
+function salvar(){
+  const entrada = document.getElementById("entrada").value;
+  const saida   = document.getElementById("saida").value;
+  const hospede = document.getElementById("hospede").value.trim();
+  const plataforma = document.getElementById("plataforma").value.trim();
+  const valor   = document.getElementById("valor").value;
+
+  if(!entrada || !saida || !hospede || !valor){
+    toast("Preencha data, hóspede e valor");
+    return;
+  }
+
+  if(editingId){
+    const idx = reservas.findIndex(x=>x.id===editingId);
+    if(idx>=0){
+      reservas[idx] = { ...reservas[idx], entrada, saida, hospede, plataforma, valor };
+      localStorage.setItem("reservas", JSON.stringify(reservas));
+      fecharModal();
+      atualizarTudo();
+      toast("Reserva atualizada ✅");
+      return;
+    }
+  }
+
+  reservas.push({ id: uid(), entrada, saida, hospede, plataforma, valor });
+  localStorage.setItem("reservas", JSON.stringify(reservas));
+  fecharModal();
+  atualizarTudo();
+  toast("Reserva salva ✅");
+}
+
+function deletar(id){
+  const r = reservas.find(x=>x.id===id);
+  if(!r) return;
+  const ok = confirm(`Excluir a reserva de "${r.hospede}"?`);
+  if(!ok) return;
+  reservas = reservas.filter(x=>x.id!==id);
+  localStorage.setItem("reservas", JSON.stringify(reservas));
+  atualizarTudo();
+  toast("Excluída 🗑️");
+}
+
+function sortByEntradaDesc(a,b){ return new Date(b.entrada) - new Date(a.entrada); }
+
+function atualizarTudo(){
+  const hoje = new Date();
+  document.getElementById("pillMonth").textContent = monthName(hoje);
+
+  let total=0, mes=0, countMes=0, max=0;
+  let proximo=null;
+  const now = new Date();
+  const m = now.getMonth(), y = now.getFullYear();
+
+  reservas.forEach(r=>{
+    const v = Number(r.valor)||0;
+    total += v;
+    if(v>max) max=v;
+
+    const de = new Date(r.entrada);
+    if(de.getMonth()===m && de.getFullYear()===y){
+      mes += v;
+      countMes += 1;
+    }
+    if(de > now){
+      if(!proximo || de < new Date(proximo.entrada)) proximo = r;
+    }
+  });
+
+  document.getElementById("total").textContent = fmtBRL(total);
+  document.getElementById("mes").textContent   = fmtBRL(mes);
+  document.getElementById("countMes").textContent = String(countMes);
+  document.getElementById("max").textContent   = fmtBRL(max);
+  document.getElementById("mesHint").textContent = "Entradas em " + monthName(now);
+
+  const badge = document.getElementById("badgeNext");
+  const next  = document.getElementById("next");
+  const nextHint = document.getElementById("nextHint");
+
+  if(proximo){
+    const de = new Date(proximo.entrada);
+    next.textContent = proximo.hospede;
+    nextHint.textContent = `${pad2(de.getDate())}/${pad2(de.getMonth()+1)}/${de.getFullYear()} • ${proximo.plataforma || "—"}`;
+    badge.textContent = "Em breve";
+  } else {
+    next.textContent = "Nenhum";
+    nextHint.textContent = "Sem check-in futuro cadastrado";
+    badge.textContent = "Sem agenda";
+  }
+
+  const last = [...reservas].sort(sortByEntradaDesc).slice(0,5);
+  renderList("lastList", last, false);
+
+  const all = [...reservas].sort(sortByEntradaDesc);
+  renderList("allList", all, true);
+
+  renderSparkline();
+}
+
+function renderList(elId, arr, withActions){
+  const el = document.getElementById(elId);
+  el.innerHTML = "";
+  if(arr.length===0){
+    const empty = document.createElement("div");
+    empty.className="card";
+    empty.innerHTML = `<div class="label">Sem reservas ainda</div><div class="hint">Toque no “+” para adicionar.</div>`;
+    el.appendChild(empty);
+    return;
+  }
+  arr.forEach(r=>{
+    const v = Number(r.valor)||0;
+    const div = document.createElement("div");
+    div.className="item";
+
+    const left = document.createElement("div");
+    left.className="left";
+    left.innerHTML = `
+      <div class="name">${escapeHtml(r.hospede)}</div>
+      <div class="meta">${formatPeriodo(r.entrada, r.saida)} • ${escapeHtml(r.plataforma || "—")}</div>
+    `;
+
+    const right = document.createElement("div");
+    right.style.display="flex";
+    right.style.alignItems="center";
+    right.style.gap="10px";
+
+    const price = document.createElement("div");
+    price.className="price kbd";
+    price.textContent = fmtBRL(v);
+    right.appendChild(price);
+
+    if(withActions){
+      const actions = document.createElement("div");
+      actions.className = "item-actions";
+
+      const btnEdit = document.createElement("div");
+      btnEdit.className="iconbtn";
+      btnEdit.textContent="✎";
+      btnEdit.title="Editar";
+      btnEdit.onclick = ()=> abrirModalEditar(r.id);
+
+      const btnDel = document.createElement("div");
+      btnDel.className="iconbtn danger";
+      btnDel.textContent="🗑";
+      btnDel.title="Excluir";
+      btnDel.onclick = ()=> deletar(r.id);
+
+      actions.appendChild(btnEdit);
+      actions.appendChild(btnDel);
+      right.appendChild(actions);
+    }
+
+    div.appendChild(left);
+    div.appendChild(right);
+    el.appendChild(div);
+  });
+}
+
+function formatPeriodo(entrada, saida){
+  if(!entrada || !saida) return "—";
+  const e = new Date(entrada);
+  const s = new Date(saida);
+  const ee = `${pad2(e.getDate())}/${pad2(e.getMonth()+1)}`;
+  const ss = `${pad2(s.getDate())}/${pad2(s.getMonth()+1)}`;
+  return `${ee} → ${ss}`;
+}
+
+function renderSparkline(){
+  const canvas = document.getElementById("spark");
+  const ctx = canvas.getContext("2d");
+  const w = canvas.width, h = canvas.height;
+
+  const now = new Date();
+  const buckets = [];
+  for(let i=5;i>=0;i--){
+    const d = new Date(now.getFullYear(), now.getMonth()-i, 1);
+    buckets.push({ y:d.getFullYear(), m:d.getMonth(), sum:0 });
+  }
+  reservas.forEach(r=>{
+    const de = new Date(r.entrada);
+    const v = Number(r.valor)||0;
+    buckets.forEach(b=>{
+      if(de.getFullYear()===b.y && de.getMonth()===b.m) b.sum += v;
+    });
+  });
+
+  const values = buckets.map(b=>b.sum);
+  const vmax = Math.max(1, ...values);
+
+  ctx.clearRect(0,0,w,h);
+  ctx.globalAlpha = 0.35;
+  ctx.fillStyle = "#FFFFFF";
+  ctx.fillRect(0, h-2, w, 2);
+  ctx.globalAlpha = 1;
+
+  const padX = 10, padY = 12;
+  const innerW = w - padX*2;
+  const innerH = h - padY*2;
+  const step = innerW / (values.length-1);
+
+  ctx.lineWidth = 4;
+  ctx.lineCap = "round";
+  ctx.lineJoin = "round";
+
+  ctx.strokeStyle = "rgba(255,255,255,.22)";
+  ctx.beginPath();
+  values.forEach((v,i)=>{
+    const x = padX + step*i;
+    const y = padY + innerH - (v/vmax)*innerH;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  ctx.strokeStyle = "rgba(255,255,255,.92)";
+  ctx.lineWidth = 3;
+  ctx.beginPath();
+  values.forEach((v,i)=>{
+    const x = padX + step*i;
+    const y = padY + innerH - (v/vmax)*innerH;
+    if(i===0) ctx.moveTo(x,y); else ctx.lineTo(x,y);
+  });
+  ctx.stroke();
+
+  values.forEach((v,i)=>{
+    const x = padX + step*i;
+    const y = padY + innerH - (v/vmax)*innerH;
+    ctx.fillStyle = "rgba(255,255,255,.95)";
+    ctx.beginPath(); ctx.arc(x,y,4,0,Math.PI*2); ctx.fill();
+    ctx.fillStyle = "rgba(255,255,255,.14)";
+    ctx.beginPath(); ctx.arc(x,y,8,0,Math.PI*2); ctx.fill();
+  });
+}
+
+function exportar(){
+  const out = document.getElementById("exportOut");
+  const json = JSON.stringify(reservas);
+  out.textContent = json.length ? json : "Sem dados para exportar.";
+  toast("Exportado 📦");
+}
+
+function escapeHtml(str){
+  return String(str || "").replace(/[&<>"']/g, (m)=>({ "&":"&amp;","<":"&lt;",">":"&gt;","\"":"&quot;","'":"&#39;" }[m]));
+}
+
+// init
+migrateIds();
+atualizarTudo();
+</script>
+
+</body>
+</html>
